@@ -21,7 +21,7 @@ void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int 
 
 int main(void)
 {
-	/* Initialize the library */
+#pragma region WINDOW INITIALIZED
 	if (!glfwInit())
 	{
 		std::cout << "glfwInit() failed!" << std::endl;
@@ -56,18 +56,17 @@ int main(void)
 	std::cout << "Renderer " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
-	glClearColor(0, 1, 0, 1);
+	glClearColor(0.0f, 0.8f, 0.7f, 1.0f);
 
-	/* Loop until the user closes the window */
+#pragma endregion
+
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 
-		/* Poll for and process events */
 		glfwPollEvents();
 	}
 

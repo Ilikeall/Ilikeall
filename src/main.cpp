@@ -1,17 +1,48 @@
 #include<glad/glad.h>
 #include <GLFW/glfw3.h>
 #include<iostream>
+#include"Renderer/ShaderProgram.h"
+#include"Resources/ResourceManager.h"
+
+GLfloat points[]{
+	 0.0f,  0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f
+};
+GLfloat colors[]{
+	1.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 1.0f
+};
+
+const char* vertex_shader =
+"#version 460 core\n"
+"layout(location = 0) in vec3 vPos;"
+"layout(location = 1) in vec3 vColor;"
+"out vec3 color;"
+"void main() {"
+"	gl_Position = vec4(vPos, 1.0f);"
+"	color = vColor;"
+"}";
+
+const char* fragment_shader =
+"#version 460 core\n"
+"in vec3 color;"
+"out vec4 fColor;"
+"void main() {"
+"	fColor = vec4(color, 1.0f);"
+"}";
 
 int g_windowSizeX = 1280;
 int g_windowSizeY = 720;
-void glfwWindowSizeCallback(GLFWwindow* window, int width, int height)
+void isResized(GLFWwindow* window, int width, int height)
 {
 	g_windowSizeX = width;
 	g_windowSizeY = height;
 	glViewport(0, 0, g_windowSizeX, g_windowSizeY);
 }
 
-void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void onKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
@@ -19,8 +50,12 @@ void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int 
 	}
 }
 
-int main(void)
+char resultInfo[1024];
+int res;
+
+int main(int argc, char** argv)
 {
+
 #pragma region WINDOW INITIALIZED
 	if (!glfwInit())
 	{
@@ -42,8 +77,8 @@ int main(void)
 		return -1;
 	}
 	
-	glfwSetWindowSizeCallback(window, glfwWindowSizeCallback);
-	glfwSetKeyCallback(window, glfwKeyCallback);
+	glfwSetWindowSizeCallback(window, isResized);
+	glfwSetKeyCallback(window, onKeyPressed);
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
@@ -60,14 +95,54 @@ int main(void)
 
 #pragma endregion
 
-	while (!glfwWindowShouldClose(window))
+#pragma region BUFFER INITIALIZATION
 	{
-		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
 
-		glfwSwapBuffers(window);
+		ResourceManager resourceManager(argv[0]);
+		auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/Shaders/vertex.vert", "res/Shaders/fragment.frag");
+		if (!pDefaultShaderProgram)
+		{
+			std::cerr << "Can't create shader program: " << "DefaultShader" << std::endl;
+			return -1;
+		}
 
-		glfwPollEvents();
+		GLuint points_VBO = 0;
+		glGenBuffers(1, &points_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, points_VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+		GLuint colors_VBO = 0;
+		glGenBuffers(1, &colors_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, colors_VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
+		GLuint VAO = 0;
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, points_VBO);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, colors_VBO);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+#pragma endregion
+
+		while (!glfwWindowShouldClose(window))
+		{
+			/* Render here */
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			pDefaultShaderProgram->use();
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+
+			glfwSwapBuffers(window);
+
+			glfwPollEvents();
+		}
 	}
 
 	glfwTerminate();

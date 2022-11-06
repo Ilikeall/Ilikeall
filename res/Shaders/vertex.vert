@@ -1,9 +1,13 @@
 #version 460 core
-layout(location = 0) in vec3 vPos;
-layout(location = 1) in vec3 vColor;
+layout(location = 0) in vec3 vertex_position;
+layout(location = 1) in vec3 vertex_color;
+layout(location = 2) in vec2 texture_coords;
 out vec3 color;
+out vec2 texCoords;
+
 void main()
 {
-	color = vColor;
-	gl_Position = vec4(vPos, 1.0f);
+	color = vertex_color;
+	texCoords = texture_coords;
+	gl_Position = vec4(vertex_position, 1.0f);
 }

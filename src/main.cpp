@@ -3,6 +3,7 @@
 #include<iostream>
 #include"Renderer/ShaderProgram.h"
 #include"Resources/ResourceManager.h"
+#include"Renderer/Texture2D.h"
 
 GLfloat points[]{
 	 0.0f,  0.5f, 0.0f,
@@ -15,23 +16,11 @@ GLfloat colors[]{
 	0.0f, 0.0f, 1.0f
 };
 
-const char* vertex_shader =
-"#version 460 core\n"
-"layout(location = 0) in vec3 vPos;"
-"layout(location = 1) in vec3 vColor;"
-"out vec3 color;"
-"void main() {"
-"	gl_Position = vec4(vPos, 1.0f);"
-"	color = vColor;"
-"}";
-
-const char* fragment_shader =
-"#version 460 core\n"
-"in vec3 color;"
-"out vec4 fColor;"
-"void main() {"
-"	fColor = vec4(color, 1.0f);"
-"}";
+GLfloat texCoord[]{
+	0.5f, 1.0f,
+	1.0f, 0.0f,
+	0.0f, 0.0f
+};
 
 int g_windowSizeX = 1280;
 int g_windowSizeY = 720;
@@ -106,6 +95,8 @@ int main(int argc, char** argv)
 			return -1;
 		}
 
+		auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/map_16x16.png");
+
 		GLuint points_VBO = 0;
 		glGenBuffers(1, &points_VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, points_VBO);
@@ -115,6 +106,11 @@ int main(int argc, char** argv)
 		glGenBuffers(1, &colors_VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, colors_VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
+		GLuint texCoord_VBO = 0;
+		glGenBuffers(1, &texCoord_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, texCoord_VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(texCoord), texCoord, GL_STATIC_DRAW);
 
 		GLuint VAO = 0;
 		glGenVertexArrays(1, &VAO);
@@ -128,7 +124,14 @@ int main(int argc, char** argv)
 		glBindBuffer(GL_ARRAY_BUFFER, colors_VBO);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, texCoord_VBO);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
 #pragma endregion
+
+		pDefaultShaderProgram->use();
+		pDefaultShaderProgram->setInt("tex", 0);
 
 		while (!glfwWindowShouldClose(window))
 		{
@@ -137,6 +140,7 @@ int main(int argc, char** argv)
 
 			pDefaultShaderProgram->use();
 			glBindVertexArray(VAO);
+			tex->bind();
 			glDrawArrays(GL_TRIANGLES, 0, 3);
 
 			glfwSwapBuffers(window);

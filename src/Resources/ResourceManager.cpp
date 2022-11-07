@@ -1,6 +1,7 @@
 #include"ResourceManager.h"
 #include"../Renderer/ShaderProgram.h"
 #include"../Renderer/Texture2D.h"
+#include"../Renderer/Sprite.h"
 
 #include<sstream>
 #include<fstream>
@@ -96,5 +97,43 @@ std::shared_ptr<Renderer::Texture2D> ResourceManager::getTexture(const std::stri
 		return it->second;
 	}
 	std::cerr << "Can't find the texture: " << textureName << std::endl;
+	return nullptr;
+}
+
+std::shared_ptr<Renderer::Sprite> ResourceManager::loadSprite(const std::string& spriteName,
+	const std::string& textureName,
+	const std::string& shaderName,
+	const unsigned int spriteWidth,
+	const unsigned int spriteHeight)
+{
+	auto ptrTexture = getTexture(textureName);
+	if (!ptrTexture)
+	{
+		std::cerr << "Can't find the texture: " << textureName << "for the sprite: " << spriteName << std::endl;
+
+	}
+	auto ptrShader = getShaderProgram(shaderName);
+	if (!ptrShader)
+	{
+		std::cerr << "Can't find the shader: " << shaderName << "for the sprite: " << spriteName << std::endl;
+	}
+
+	std::shared_ptr<Renderer::Sprite> newSprite = m_sprites.emplace(spriteName,
+																	std::make_shared<Renderer::Sprite>(
+																	ptrTexture,
+																	ptrShader,
+																	glm::vec2(0.0f, 0.0f),
+																	glm::vec2(spriteWidth, spriteHeight))
+																	).first->second;
+		return newSprite;
+}
+std::shared_ptr<Renderer::Sprite> ResourceManager::getSprite(const std::string& spriteName)
+{
+	SpritessMap::const_iterator it = m_sprites.find(spriteName);
+	if (it != m_sprites.end())
+	{
+		return it->second;
+	}
+	std::cerr << "Can't find the sprite: " << spriteName << std::endl;
 	return nullptr;
 }

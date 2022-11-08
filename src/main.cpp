@@ -109,7 +109,12 @@ int main(int argc, char** argv)
 
 		auto tex = resourceManager.loadTexture("DefaultTexture", "res/textures/map_16x16.png");
 
-		auto ptrSprite = resourceManager.loadSprite("NewSprite", "DefaultTexture", "SpriteShader", 50, 100);
+		std::vector<std::string> subTextureNames = { "bricksBlock", "topBricks", "bottomBricks", "leftBricks", "rightBricks",
+													"topLeftBrick", "topRightBrick", "bottomLeftBrick", "bottomRightBrick", "betonBlock"};
+		auto ptrTextureAtlas = resourceManager.loadTextureAtlas("DefaultTextureAtlas",
+			"res/textures/map_16x16.png", std::move(subTextureNames), 16, 16);
+
+		auto ptrSprite = resourceManager.loadSprite("NewSprite", "DefaultTextureAtlas", "SpriteShader", 100, 100, "betonBlock");
 		ptrSprite->setPosition(glm::vec2(300, 100));
 
 		GLuint points_VBO = 0;

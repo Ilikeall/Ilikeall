@@ -12,9 +12,9 @@ namespace Renderer {
 	class Sprite
 	{public:
 
-		Sprite(const std::shared_ptr<Texture2D> ptrTexture,
-			const std::string initialSubTexture,
-			const std::shared_ptr<ShaderProgram> ptrShaderProgram,
+		Sprite(std::shared_ptr<Texture2D> ptrTexture,
+			std::string initialSubTexture,
+			std::shared_ptr<ShaderProgram> ptrShaderProgram,
 			const glm::vec2& position = glm::vec2 (0.0f, 0.0f),
 			const glm::vec2& size = glm::vec2 (1.0f, 1.0f),
 			const float rotation = 0.0f);
@@ -23,12 +23,12 @@ namespace Renderer {
 		Sprite(const Sprite&) = delete;
 		Sprite& operator=(const Sprite&) = delete;
 
-		void render() const;
+		virtual void render() const;
 		void setPosition(const glm::vec2& position);
 		void setSize(const glm::vec2& size);
 		void setRotation(const float rotation);
 
-	private:
+	protected:
 		std::shared_ptr<Texture2D> m_ptrTexture;
 		std::shared_ptr<ShaderProgram> m_ptrShaderProgram;
 		glm::vec2 m_position;

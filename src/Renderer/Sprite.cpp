@@ -6,9 +6,9 @@
 
 namespace Renderer {
 
-	Sprite::Sprite(const std::shared_ptr<Texture2D> ptrTexture,
-		const std::string initialSubTexture,
-		const std::shared_ptr<ShaderProgram> ptrShaderProgram,
+	Sprite::Sprite(std::shared_ptr<Texture2D> ptrTexture,
+		std::string initialSubTexture,
+		std::shared_ptr<ShaderProgram> ptrShaderProgram,
 		const glm::vec2& position,
 		const glm::vec2& size,
 		const float rotation)
@@ -29,7 +29,7 @@ namespace Renderer {
 			0.0f,  0.0f
 		};
 
-	auto subTexture = ptrTexture->getSubTexture(std::move(initialSubTexture));
+	auto subTexture = m_ptrTexture->getSubTexture(std::move(initialSubTexture));
 
 		const GLfloat textureCoords[]{
 		//   U,     V
@@ -40,7 +40,6 @@ namespace Renderer {
 			  subTexture.rightTopUV.x, subTexture.rightTopUV.y,
 			  subTexture.rightTopUV.x,  subTexture.leftBottomUV.y,
 			subTexture.leftBottomUV.x,  subTexture.leftBottomUV.y
-
 		};
 
 		glGenVertexArrays(1, &m_VAO);

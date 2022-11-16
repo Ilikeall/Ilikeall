@@ -2,6 +2,9 @@
 
 #include<glm/vec2.hpp>
 #include<array>
+#include<memory>
+
+class Tank;
 
 class Game {
 public:
@@ -21,12 +24,10 @@ public:
 private:
 	std::array<bool, 349> m_keys;
 
-	enum class EGameState{
-		Active,
-		Pause
-	};
+	enum class EGameState{Active, Pause};
 
 	glm::ivec2 m_windowSize;
 	EGameState m_eCurrentGameState;
+	std::unique_ptr < Tank > m_ptrTank;
 
 };
